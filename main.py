@@ -6,6 +6,7 @@ import asyncio
 import aiohttp
 from fastapi import FastAPI, Request, HTTPException
 from telethon import TelegramClient
+from telethon.sessions import MemorySession
 from telethon.tl.types import InputMediaUploadedDocument
 from telethon.tl.functions.channels import GetParticipantRequest
 from telethon.errors import UserNotParticipantError
@@ -33,7 +34,8 @@ API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 SESSION_NAME = "bot_session"
 
-client = TelegramClient(SESSION_NAME, API_ID, API_HASH)
+# Use MemorySession instead of SQLite
+client = TelegramClient(MemorySession(), API_ID, API_HASH)
 
 # File paths for storage
 COOLDOWN_FILE = "cooldowns.json"
@@ -81,7 +83,6 @@ async def edit_message(chat_id: int, message_id: int, text: str, reply_markup=No
 
 async def answer_callback(callback_id: str, text: str, show_alert: bool = False):
     try:
-        # Telethon doesn't have direct answerCallbackQuery; use Bot API
         async with aiohttp.ClientSession() as session:
             url = f"https://api.telegram.org/bot{BOT_TOKEN}/answerCallbackQuery"
             params = {"callback_query_id": callback_id, "text": text, "show_alert": show_alert}
@@ -469,4 +470,4 @@ async def startup_event():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000, workers=1)
