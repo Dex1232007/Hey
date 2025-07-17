@@ -1,5 +1,4 @@
-fastapi==0.111.0
-uvicorn==0.30.1
-telethon==1.36.0
-aiohttp==3.9.5
-python-dotenv==1.0.1
+python-telegram-bot==13.15
+requests
+faker
+tqdm
